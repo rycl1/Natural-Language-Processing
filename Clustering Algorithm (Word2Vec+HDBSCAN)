@@ -1,0 +1,56 @@
+import spacy
+from spacy.tokens import Doc
+import numpy as np 
+import nltk 
+nltk.download('perluniprops')
+from nltk.tokenize.moses import MosesDetokenizer
+nltk.download('punkt')
+nltk.download('stopwords')
+
+import hdbscan
+import numpy as np
+import matplotlib.pyplot as plt
+import seaborn as sns
+import sklearn.cluster as cluster
+import time
+
+nltk_stopwords = nltk.corpus.stopwords.words('english')
+
+spacy.prefer_gpu()
+
+nlp = spacy.load('en_core_web_lg')
+
+f = open('requests.txt', encoding = "utf8")
+
+z = f.readlines()
+
+detokenizer = MosesDetokenizer()
+
+datavecs = []
+
+plot_kwds = {'alpha' : 0.25, 's' : 80, 'linewidths':0}
+
+def plot_clusters(data, algorithm, args, kwds):
+    start_time = time.time()
+    labels = algorithm(*args, **kwds).fit_predict(data)
+    end_time = time.time()
+    palette = sns.color_palette('deep', np.unique(labels).max() + 1)
+    colors = [palette[x] if x >= 0 else (0.0, 0.0, 0.0) for x in labels]
+    plt.scatter(data.T[0], data.T[1], c=colors, **plot_kwds)
+    frame = plt.gca()
+    frame.axes.get_xaxis().set_visible(False)
+    frame.axes.get_yaxis().set_visible(False)
+    plt.title('Clusters found by {}'.format(str(algorithm.__name__)), fontsize=24)
+    plt.text(-0.5, 0.7, 'Clustering took {:.2f} s'.format(end_time - start_time), fontsize=14)
+    
+for request in z:
+    tokens = nltk.tokenize.word_tokenize(request)
+    tokens = [token for token in tokens if not token in nltk_stopwords]
+    real = detokenizer.detokenize(tokens, return_str=True)
+    for sentence in real:
+        doc = nlp(sentence)
+        datavecs.append(doc.vector)
+
+npa = np.asarray(datavecs, dtype=np.float32)
+
+plot_clusters(npa, hdbscan.HDBSCAN, (), {'min_cluster_size':2})
