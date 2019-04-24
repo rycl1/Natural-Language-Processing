@@ -1,0 +1,24 @@
+#Main cleaning function with Regexp (currently optimized for twitter data)
+
+regexp = r'pic\.twitter\.com\S+|http\S+|@\S+|#\S+|\n\S+|'
+regexp2 = r'[^a-zA-Z\']+'
+regexp3 = r'(^| ).( |$)'
+
+res = [re.sub(regexp, '', sent) for sent in l]
+print()
+res2 = [re.sub(regexp2, ' ', sent2) for sent2 in res]
+print()
+
+
+res3 = []
+for item in res2:
+    res3.append(item.lower())
+    
+res4 =  [re.sub(regexp3, ' ', sent3) for sent3 in res3]
+
+print(res4)
+
+with codecs.open("twitterdata.txt", "w", "utf-8") as output:
+    output.write(str(res4))
+    
+    
