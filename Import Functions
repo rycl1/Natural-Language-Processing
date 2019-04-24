@@ -1,0 +1,12 @@
+#For importing data that is already in list format
+
+with open('twitterdata.txt', 'r', encoding = 'utf-8') as f:
+    b = f.readlines()
+    print()    
+    l = literal_eval(b[0])
+    print()
+    
+#For importing data in line-by-line format
+
+f = open('requests.txt', encoding = "utf8")
+z = f.readlines()
