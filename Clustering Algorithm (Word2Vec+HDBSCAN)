@@ -13,6 +13,10 @@ import matplotlib.pyplot as plt
 import seaborn as sns
 import sklearn.cluster as cluster
 import time
+from sklearn.manifold import TSNE
+from sklearn.decomposition import PCA
+import pandas as pd
+import codecs
 
 nltk_stopwords = nltk.corpus.stopwords.words('english')
 
@@ -53,4 +57,56 @@ for request in z:
 
 npa = np.asarray(datavecs, dtype=np.float32)
 
-plot_clusters(npa, hdbscan.HDBSCAN, (), {'min_cluster_size':2})
+embedding = umap.UMAP().fit_transform(npa.data)
+
+minclusters = 2
+
+newclusterer4 = hdbscan.HDBSCAN(min_cluster_size=minclusters, min_samples=1, allow_single_cluster=False).fit(embedding)
+
+print(newclusterer4.labels_)
+
+testm2 = newclusterer4.labels_.tolist()
+datanew2 = {'String':l,'Cluster':testm2}
+df7new = pd.DataFrame(datanew2)
+
+
+maxlabel = max(testm2)
+label_range = list(range(-1, maxlabel + 1))
+for clusnum in label_range:
+    print(df7new.loc[df7new['Cluster'] == clusnum])
+    
+    
+    
+    
+outputstring = "Your data produced" + " " + str(maxlabel) + " " + "clusters with a minimum of" + " " + str(minclusters) + " " + "phrases per cluster."
+
+testm2 = newclusterer4.labels_.tolist()
+testm3 = newclusterer4.probabilities_.tolist()
+datanew2 = {'String':l,'Cluster':testm2,'Strength':testm3}
+df7new = pd.DataFrame(datanew2)
+
+df8new = pd.DataFrame(df7new.loc[df7new['Strength'] == 1])
+
+
+df8new = df8new.drop_duplicates('Cluster')
+
+print(outputstring)
+print(df8new)
+    
+frame = df8new
+
+def print_full(frame):
+    pd.set_option('display.max_rows', len(frame))
+    pd.set_option('display.max_columns', None)
+    pd.set_option('display.width', 2000)
+    pd.set_option('display.float_format', '{:20,.2f}'.format)
+    pd.set_option('display.max_colwidth', -1)
+    print(frame)
+    pd.reset_option('display.max_rows')
+    pd.reset_option('display.max_columns')
+    pd.reset_option('display.width')
+    pd.reset_option('display.float_format')
+    pd.reset_option('display.max_colwidth')
+
+
+print_full(df8new)  
