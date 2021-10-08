@@ -1,5 +1,6 @@
 #Main cleaning function with Regexp (currently optimized for twitter data)
 
+#Symbols below are removed and data is available for processing
 regexp = r'pic\.twitter\.com\S+|http\S+|@\S+|#\S+|\n\S+|'
 regexp2 = r'[^a-zA-Z\']+'
 regexp3 = r'(^| ).( |$)'
